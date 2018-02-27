@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "bd0c727f-8301-4bfa-b879-b98afab7e6c8",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "wozhidaole 2": {
+      "ver": "1.0.3",
+      "uuid": "80c91520-de69-4b1d-a028-503292ae687a",
+      "rawTextureUuid": "bd0c727f-8301-4bfa-b879-b98afab7e6c8",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 476,
+      "height": 224,
+      "rawWidth": 476,
+      "rawHeight": 224,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

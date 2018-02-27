@@ -1,0 +1,30 @@
+{
+  "appKey": "",
+  "appSecret": "",
+  "excludeScenes": [
+    "2642e59e-10ac-454b-9d58-f57b36b7fcc5"
+  ],
+  "includeAnySDK": false,
+  "includeSDKBox": false,
+  "includeSdk": [
+    "anysdk"
+  ],
+  "inlineSpriteFrames": true,
+  "inlineSpriteFrames_native": true,
+  "md5Cache": false,
+  "mergeStartScene": false,
+  "oauthLoginServer": "",
+  "optimizeHotUpdate": false,
+  "orientation": {
+    "landscapeLeft": true,
+    "landscapeRight": true,
+    "portrait": false,
+    "upsideDown": false
+  },
+  "packageName": "org.cocos2d.Word",
+  "privateKey": "",
+  "renderMode": "0",
+  "startScene": "ef6c35cf-a4bc-4372-93b2-7d1e6901ecfc",
+  "title": "Word",
+  "webOrientation": "portrait"
+}

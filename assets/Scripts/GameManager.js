@@ -1,0 +1,565 @@
+var AudioManager = require("AudioManager");
+var GameStats = require("GameStats");
+var ConnectionManager = require("ConnectionManager");
+var Phrase = require("Phrase");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        DataManagerNode: {
+            default: null,
+            type: cc.Node,
+        },
+        GameStats: {
+            default: null,
+            type: GameStats,
+        },
+        AudioManager: {
+            default: null,
+            type: AudioManager,
+        },
+        ConnectionManager: {
+            default: null,
+            type: ConnectionManager,
+        },
+        leftPhrase: {
+            default: null,
+            type: Phrase,
+        },
+
+        rightPhrase: {
+            default: null,
+            type: Phrase,
+        },
+
+        MainMenuNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        RankMenuNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        GameUINode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        tickSprite: {
+            default: null,
+            type: cc.SpriteFrame,
+        },
+
+        crossSprite: {
+            default: null,
+            type: cc.SpriteFrame,
+        },
+
+        leftSpriteNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        rightSpriteNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        leftPhraseBtnNode: {
+            default: null,
+            type: cc.Node,
+        },
+        rightPhraseBtnNode: {
+            default: null,
+            type: cc.Node,
+        },
+        hackerNode: {
+            default: null,
+            type: cc.Node,
+        },
+        charNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        leftImpulseAnim: {
+            default: null,
+            type: cc.Animation,
+        },
+
+        rightImpulseAnim: {
+            default: null,
+            type: cc.Animation,
+        },
+
+        rightDoorNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        tvBackground: {
+            default: null,
+            type: cc.Sprite,
+        },
+
+        tvAlertBg: {
+            default: null,
+            type: cc.SpriteFrame,
+        },
+
+        tvAlertRingNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        tutNode: {
+            default: null,
+            type: cc.Node,
+        }
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+    },
+    doorSpeed: null,
+    DataManager: null,
+    PhraseReviever: null,
+
+    rightAnswerIndex: null,
+    leftSprite: null,
+    rightSprite: null,
+    leftPhraseBtn: null,
+    rightPhraseBtn: null,
+    wrongWordIndecies: null,
+    gameStarted: null,
+    rightAnswerCount: null,
+    speedDeductionTimeout: null,
+    hacker: null,
+    UserDataURL: null,
+
+    //结算数据
+    rightCount: null,
+    wrongCount: null,
+    highestCombo: null,
+    timeCost: null,
+    comboScore: null,
+    score: null,
+
+    charAnimation: null,
+
+    doorMaxDist: null,
+    deadAnim: null,
+    userId: null,
+    userName: null,
+    userNickName: null,
+    tvDefaultBg: null,
+    // use this for initialization
+    onLoad: function () {
+        this.ConnectionManager.init();
+        this.leftPhrase.init();
+        this.rightPhrase.init();
+
+        this.UserDataURL = "https://jcyapi.easybao.com/jcy-api/app/system/getUserMessage";
+        //this.UserDataURL = "http://106.14.151.23/jcy-api/app/system/getUserMessage";
+        //this.dbURL = "http://101.132.135.78/zcxs";
+        this.dbURL = "https://games.jcgroup.com.cn/zcxs"
+
+        this.DataManager = this.DataManagerNode.getComponent("DataManager");
+        this.PhraseReviever = this.node.getComponent("PhraseReciever");
+        this.charAnimation = this.charNode.getComponent(cc.Animation);
+        this.leftSprite = this.leftSpriteNode.getComponent(cc.Sprite);
+        this.rightSprite = this.rightSpriteNode.getComponent(cc.Sprite);
+        this.deadAnim = this.tvBackground.node.getComponent(cc.Animation);
+        this.tvDefaultBg = this.tvBackground.node.getComponent(cc.Sprite).spriteFrame;
+        this.leftPhraseBtn = this.leftPhraseBtnNode.getComponent("PhraseBtn");
+        this.rightPhraseBtn = this.rightPhraseBtnNode.getComponent("PhraseBtn");
+        this.gameStarted = false;
+        this.hacker = this.hackerNode.getComponent("Hacker");
+        this.doorSpeed = 0;
+
+        this.charAnimation.on('finished', this.charAttackFinished, this);
+        this.deadAnim.on('finished', this.deadAnimFinished, this);
+        this.getUserId();
+        this.getUserData(this);
+    },
+
+    getUserData: function (gm) {
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("POST", gm.UserDataURL);
+        xmlhttp.setRequestHeader("Content-Type", "application/json");
+        var paramJson = { "userNo": gm.userId };
+        xmlhttp.send(JSON.stringify(paramJson));
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    var obj = JSON.parse(xmlhttp.responseText);
+                    if (obj.data) {
+                        self.userName = obj.data.name;
+                        self.userNickName = obj.data.nickName;
+                        self.checkUserId(self);
+                    }
+                    else //未登录
+                    {
+                        self.userName = "未登录";
+
+                        var played = cc.sys.localStorage.getItem("played")
+                        if (played === "true")//在玩一次
+                        {
+                            self.startGame();
+                        }
+                        else {
+                            self.AudioManager.playBgMenu();
+                            self.RankMenuNode.active = true;
+                        }
+                    }
+                }
+                else {
+                    self.ConnectionManager.error(self.getUserData, self);
+                    cc.log("getUserData error!");
+                }
+            }
+        }
+    },
+
+    updateLastRank: function (gm) {
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+        var url = gm.dbURL + "/updateLastRank.php?uuid=" + gm.userId;
+        window.xmlhttp = new XMLHttpRequest();
+        window.xmlhttp.onreadystatechange = function () {
+            if (window.xmlhttp.readyState == 4) {
+                if (window.xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    self.startGame();
+                }
+                else {
+                    self.ConnectionManager.error(self.updateLastRank, self);
+                    cc.log("updateLastRank error!!");
+                }
+            }
+        }
+        window.xmlhttp.open("GET", url, true);
+        window.xmlhttp.send(null);
+    },
+
+
+    checkUserId: function (gm) {
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+
+        var url = gm.dbURL + "/queryuserexist.php?uuid=" + gm.userId;
+        window.xmlhttp = new XMLHttpRequest();
+        window.xmlhttp.onreadystatechange = function () {
+            if (window.xmlhttp.readyState == 4) {
+                if (window.xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    if (window.xmlhttp.responseText === "Yes") {
+                        var played = cc.sys.localStorage.getItem("played")
+                        if (played === "true")//在玩一次
+                        {
+                            self.updateLastRank(gm);
+                        }
+                        else {
+                            self.AudioManager.playBgMenu();
+                            self.RankMenuNode.active = true;
+                        }
+
+                    }
+                    else //第一次玩
+                    {
+                        self.AudioManager.playBgMenu();
+                        self.MainMenuNode.active = true;
+                        //self.signUp(self);
+                    }
+                }
+                else {
+                    self.ConnectionManager.error(self.checkUserId, self);
+                    cc.log("checkUserId error!");
+                }
+            }
+        }
+        window.xmlhttp.open("GET", url, true);
+        window.xmlhttp.send(null);
+    },
+
+    showTut: function () {
+        this.MainMenuNode.active = false;
+        this.tutNode.active = true;
+    },
+
+    signUp: function (gm) {
+        gm = this;
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+
+        gm.tutNode.active = false;
+        var url = encodeURI(gm.dbURL + "/register.php?uuid=" + gm.userId + "&name=" + gm.userName + "&nickName=" + gm.userNickName);
+        window.xmlhttp = new XMLHttpRequest();
+        window.xmlhttp.onreadystatechange = function () {
+            if (window.xmlhttp.readyState == 4) {
+                if (window.xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    self.updateLastRank(self);
+
+                    //self.MainMenuNode.active = true;
+                }
+                else {
+                    self.ConnectionManager.error(self.signUp, self);
+                    cc.log("signUp error!!");
+                }
+            }
+        };
+        window.xmlhttp.open("GET", url, true);
+        window.xmlhttp.send(null);
+    },
+
+    getUserId: function () {
+        this.userId = this.getURLParameter("userNo");
+    },
+
+    getURLParameter: function (name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+    },
+
+    loadMainScene: function () {
+        cc.director.loadScene("Main");
+    },
+
+    charAttackFinished: function () {
+        this.leftImpulseAnim.node.active = false;
+        this.rightImpulseAnim.node.active = false;
+        this.charAnimation.play("char");
+    },
+
+    deadAnimFinished: function () {
+        this.AudioManager.playGameover();
+
+        this.leftPhraseBtn.disableClick();
+        this.rightPhraseBtn.disableClick();
+
+        if (this.rightAnswerCount > this.highestCombo)
+            this.highestCombo = this.rightAnswerCount;
+
+        this.score = this.rightCount * this.DataManager.scorePerQuestion + this.comboScore;
+        this.uploadHighScore(this);
+    },
+
+    startGame: function () {
+        this.GameUINode.active = true;
+        this.RankMenuNode.active = false;
+        this.MainMenuNode.active = false;
+        this.doorSpeed = this.DataManager.doorSpeed;
+        this.setPhrasePair();
+        this.gameStarted = true;
+        this.rightAnswerCount = 0;
+        this.rightCount = 0;
+        this.wrongCount = 0;
+        this.highestCombo = 0;
+        this.timeCost = 0;
+        this.comboScore = 0;
+        this.doorMaxDist = this.rightDoorNode.x;
+        this.AudioManager.playBg();
+        cc.sys.localStorage.setItem("played", false);
+    },
+
+    gameover: function () {
+        this.gameStarted = false;
+        this.charNode.active = false;
+        this.deadAnim.play("deadAnim");
+    },
+
+    alertPhase: function () {
+        this.AudioManager.playAlert();
+        this.tvBackground.spriteFrame = this.tvAlertBg;
+        this.tvAlertRingNode.active = true;
+    },
+
+    stopAlertPhase: function () {
+        this.AudioManager.stopAlert();
+        this.tvBackground.spriteFrame = this.tvDefaultBg;
+        this.tvAlertRingNode.active = false;
+    },
+
+    setPhrasePair: function () {
+        var n = Math.random();
+        var phrasePair = this.PhraseReviever.getPhrasePair();
+        var wrongAnswer = phrasePair[0];
+        var rightAnswer = phrasePair[1];
+        this.wrongWordIndecies = phrasePair[2];
+        if (n <= 0.5) {
+            this.leftPhrase.setString(wrongAnswer, this.wrongWordIndecies);
+            this.rightPhrase.setString(rightAnswer, this.wrongWordIndecies)
+            this.rightAnswerIndex = 1;
+            this.hacker.setPos(1);
+        }
+        else {
+            this.leftPhrase.setString(rightAnswer, this.wrongWordIndecies);
+            this.rightPhrase.setString(wrongAnswer, this.wrongWordIndecies)
+            this.rightAnswerIndex = 0;
+            this.hacker.setPos(0);
+        }
+    },
+
+    answerSelected: function (seletionIndex) {
+        this.leftPhraseBtn.disableClick();
+        this.rightPhraseBtn.disableClick();
+        var answerSpriteFrame = null;
+        if (seletionIndex == this.rightAnswerIndex) {//答对
+            this.leftImpulseAnim.node.active = true;
+            this.rightImpulseAnim.node.active = true;
+            this.leftImpulseAnim.node.scaleX = -this.rightDoorNode.x / this.doorMaxDist;
+            this.rightImpulseAnim.node.scaleX = this.rightDoorNode.x / this.doorMaxDist;
+            this.leftImpulseAnim.play("leftImpluse");
+            this.rightImpulseAnim.play("leftImpluse");
+            this.charAnimation.play("charAttack");
+            answerSpriteFrame = this.tickSprite;
+            if (!this.comboBonus())
+                this.deductSpeed();
+            this.rightCount++;
+        }
+        else {
+            answerSpriteFrame = this.crossSprite;
+            if (this.rightAnswerCount > this.highestCombo)
+                this.highestCombo = this.rightAnswerCount;
+            this.rightAnswerCount = 0;
+            this.wrongCount++;
+            this.AudioManager.playWrong();
+        }
+
+        if (seletionIndex == 0) {
+            this.leftSpriteNode.active = true;
+            this.leftSprite.spriteFrame = answerSpriteFrame;
+        }
+        else {
+            this.rightSpriteNode.active = true;
+            this.rightSprite.spriteFrame = answerSpriteFrame;
+        }
+
+
+        setTimeout(function () {
+            this.leftPhraseBtn.enableClick();
+            this.rightPhraseBtn.enableClick();
+            this.leftSpriteNode.active = false;
+            this.rightSpriteNode.active = false;
+            this.setPhrasePair();
+        }.bind(this), this.DataManager.questionInterval * 1000);
+    },
+
+    deductSpeed: function () {
+        this.doorSpeed -= this.DataManager.speedDeduction;
+        if (this.speedDeductionTimeout)
+            clearTimeout(this.speedDeductionTimeout);
+        this.speedDeductionTimeout = setTimeout(function () {
+            this.doorSpeed = this.DataManager.doorSpeed;
+        }.bind(this), this.DataManager.speedDeductionTime * 1000);
+    },
+
+    comboBonus: function () {
+        this.rightAnswerCount++;
+        for (var i = 0; i < this.DataManager.comboBonusList.length; i++) {
+            var comboBonusRow = this.DataManager.comboBonusList[i];
+            if (this.rightAnswerCount == comboBonusRow[0]) {
+                this.doorSpeed = comboBonusRow[1];
+                setTimeout(function () {
+                    this.doorSpeed = this.DataManager.doorSpeed;
+                }.bind(this), comboBonusRow[2] * 1000);
+                this.AudioManager.playCombo();
+                this.comboScore += parseFloat(comboBonusRow[3]);
+                return true;
+            }
+        }
+        this.AudioManager.playRight();
+        return false;
+    },
+
+    //called every frame, uncomment this function to activate update callback
+    update: function (dt) {
+        this.timeCost += dt;
+    },
+
+    uploadHighScore: function (gm) {
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+
+        var url = gm.dbURL + "/uploadscore.php?uuid=" + gm.userId + "&highscore=" + gm.score;
+        window.xmlhttp = new XMLHttpRequest();
+        window.xmlhttp.onreadystatechange = function () {
+            cc.log(window.xmlhttp.readyState);
+            if (window.xmlhttp.readyState == 4) {
+                if (window.xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    self.getRank(self);
+                }
+                else {
+                    self.ConnectionManager.error(self.uploadHighScore, self);
+                    cc.log("uploadFinished error!");
+                }
+            }
+        }
+        window.xmlhttp.open("GET", url, true);
+        window.xmlhttp.send(null);
+    },
+
+    getRank: function (gm) {
+        if (gm.ConnectionManager == null)
+            gm = gm.currentTarget.parent.getComponent("ConnectionManager").GameManager;
+        gm.ConnectionManager.show();
+        var self = gm;
+
+        var url = gm.dbURL + "/queryindex.php?uuid=" + gm.userId;
+        window.xmlhttp = new XMLHttpRequest();
+        window.xmlhttp.onreadystatechange = function () {
+            if (window.xmlhttp.readyState == 4) {
+                if (window.xmlhttp.status == 200) {
+                    self.ConnectionManager.hide();
+                    self.GameStats.node.active = true;
+                    //var score = self.rightCount * self.DataManager.scorePerQuestion + self.comboScore;
+                    var questionCount = self.rightCount + self.wrongCount;
+                    var rightPercent = 0;
+                    if (questionCount != 0)
+                        rightPercent = parseInt(self.rightCount / questionCount * 100) + "%";
+                    self.GameStats.setStats(self.score, questionCount, self.rightCount, self.wrongCount, self.highestCombo, rightPercent, window.xmlhttp.responseText.split(',')[0], parseInt(self.timeCost) + "s");
+                    if (self.userName === "未登录")
+                        self.GameStats.hideRankRow();
+                }
+                else {
+                    self.ConnectionManager.error(self.getRank, self);
+                    cc.log("getRank error!!");
+                }
+            }
+        }
+        window.xmlhttp.open("GET", url, true);
+        window.xmlhttp.send(null);
+    },
+
+    setPlayedTrue: function () {
+        cc.sys.localStorage.setItem("played", true);
+    },
+
+    setPlayedFalse: function () {
+        cc.sys.localStorage.setItem("played", false);
+    },
+});
+
+
