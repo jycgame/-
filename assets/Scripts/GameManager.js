@@ -337,7 +337,10 @@ cc.Class({
     },
 
     getURLParameter: function (name) {
-        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+        if (cc.sys.isNative)
+            return "未登录";
+        else 
+            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     },
 
     loadMainScene: function () {
