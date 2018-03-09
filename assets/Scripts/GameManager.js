@@ -163,6 +163,8 @@ cc.Class({
     tvDefaultBg: null,
     // use this for initialization
     onLoad: function () {
+        console.log("GameManager.js onLoad");
+        
         this.ConnectionManager.init();
         this.leftPhrase.init();
         this.rightPhrase.init();
@@ -189,6 +191,19 @@ cc.Class({
         this.deadAnim.on('finished', this.deadAnimFinished, this);
         this.getUserId();
         this.getUserData(this);
+
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    },
+
+    onDestroy: function() {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    },
+
+    onKeyDown: function(event) {
+
+        if (event.keyCode == cc.KEY.dpadCenter) {
+            this.startGame();
+        }
     },
 
     getUserData: function (gm) {
