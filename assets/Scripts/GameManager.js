@@ -9,6 +9,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        QuitTipNode: cc.Node,
         DataManagerNode: {
             default: null,
             type: cc.Node,
@@ -181,7 +182,6 @@ cc.Class({
     tvDefaultBg: null,
     // use this for initialization
     onLoad: function () {
-        console.log("GameManager.js onLoad");
 
         this.ConnectionManager.init();
         this.leftPhrase.init();
@@ -209,8 +209,9 @@ cc.Class({
         this.deadAnim.on('finished', this.deadAnimFinished, this);
         this.getUserId();
         this.getUserData(this);
+        this.startQuitCount = false;
 
-        GameState.current = GameState.title
+        GameState.current = GameState.title;
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
 
@@ -219,8 +220,15 @@ cc.Class({
     },
 
     onKeyUp: function (event) {
-        if (event.keyCode == InputConfig.back) {
+        if (event.keyCode == InputConfig.back && this.startQuitCount) {
+            console.log("Quit Game!");
             cc.game.end();
+            return;
+        }
+        else if (event.keyCode == InputConfig.back) {
+            this.startQuitCount = true;
+            this.quitCount = 0;
+            this.QuitTipNode.active = true;
             return;
         }
 
@@ -283,7 +291,7 @@ cc.Class({
                         self.userName = "未登录";
 
                         var played = cc.sys.localStorage.getItem("played")
-                        if (played === "true")//在玩一次
+                        if (played === "true")//在玩一次d
                         {
                             self.startGame();
                         }
@@ -568,6 +576,13 @@ cc.Class({
     //called every frame, uncomment this function to activate update callback
     update: function (dt) {
         this.timeCost += dt;
+        if (this.startQuitCount) {
+            this.quitCount += dt;
+            if (this.quitCount > 3) {
+                this.QuitTipNode.active = false;
+                this.startQuitCount = false;
+            }
+        }
     },
 
     uploadHighScore: function (gm) {
@@ -579,7 +594,6 @@ cc.Class({
         var url = gm.dbURL + "/uploadscore.php?uuid=" + gm.userId + "&highscore=" + gm.score;
         window.xmlhttp = new XMLHttpRequest();
         window.xmlhttp.onreadystatechange = function () {
-            cc.log(window.xmlhttp.readyState);
             if (window.xmlhttp.readyState == 4) {
                 if (window.xmlhttp.status == 200) {
                     self.ConnectionManager.hide();
