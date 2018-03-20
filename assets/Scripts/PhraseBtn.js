@@ -38,13 +38,21 @@ cc.Class({
     },
 
     btnOnPress: function (event) {
-
         var pb = event.currentTarget.getComponent("PhraseBtn")
         var sprite = event.currentTarget.getComponent(cc.Sprite)
         pb.AudioManager.playSwitch();
         var gm = pb.GameManager;
         gm.answerSelected(pb.btnIndex);
         sprite.spriteFrame = pb.pressedSprite;
+    },
+
+    btnOnPressTV: function()
+    {
+        var sprite = this.node.getComponent(cc.Sprite)
+        this.AudioManager.playSwitch();
+        var gm = this.GameManager;
+        gm.answerSelected(this.btnIndex);
+        sprite.spriteFrame = this.pressedSprite;
     },
 
     btnOnCancel: function (event) {

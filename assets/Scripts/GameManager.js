@@ -2,6 +2,9 @@ var AudioManager = require("AudioManager");
 var GameStats = require("GameStats");
 var ConnectionManager = require("ConnectionManager");
 var Phrase = require("Phrase");
+var GameState = require('GameState');
+var InputConfig = require('InputConfig');
+
 cc.Class({
     extends: cc.Component,
 
@@ -32,9 +35,24 @@ cc.Class({
             type: Phrase,
         },
 
-        MainMenuNode: {
+        MainMenu: {
             default: null,
-            type: cc.Node,
+            type: require("MainMenu")
+        },
+
+        RankMenu: {
+            default: null,
+            type: require("RankMenu")
+        },
+
+        HelpMenu: {
+            default: null,
+            type: require("HelpMenu")
+        },
+
+        GameOverMenu: {
+            default: null,
+            type: require("GameOverMenu")
         },
 
         RankMenuNode: {
@@ -164,7 +182,7 @@ cc.Class({
     // use this for initialization
     onLoad: function () {
         console.log("GameManager.js onLoad");
-        
+
         this.ConnectionManager.init();
         this.leftPhrase.init();
         this.rightPhrase.init();
@@ -192,17 +210,51 @@ cc.Class({
         this.getUserId();
         this.getUserData(this);
 
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+        GameState.current = GameState.title
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
 
-    onDestroy: function() {
-        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    onDestroy: function () {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
 
-    onKeyDown: function(event) {
+    onKeyUp: function (event) {
+        if (event.keyCode == InputConfig.back) {
+            cc.game.end();
+            return;
+        }
 
-        if (event.keyCode == cc.KEY.dpadCenter) {
-            this.startGame();
+        switch (GameState.current) {
+            case GameState.title:
+                this.MainMenu.processKeyUp(event);
+                break;
+            case GameState.rank:
+                this.RankMenu.processKeyUp(event);
+                break;
+            case GameState.help:
+                this.HelpMenu.processKeyUp(event);
+                break;
+            case GameState.play:
+                this.processKeyUp(event);
+                break;
+            case GameState.gameover:
+                this.GameOverMenu.processKeyUp(event);
+                break;
+        }
+    },
+
+    processKeyUp: function (event) {
+        switch (event.keyCode) {
+            case InputConfig.dpadRight:
+                GameState.current = GameState.invalid;
+                this.rightPhraseBtn.btnOnPressTV();
+                break;
+            case InputConfig.dpadLeft:
+                GameState.current = GameState.invalid;
+                this.leftPhraseBtn.btnOnPressTV();
+                break;
+            default:
+                break;
         }
     },
 
@@ -237,7 +289,7 @@ cc.Class({
                         }
                         else {
                             self.AudioManager.playBgMenu();
-                            self.RankMenuNode.active = true;
+                            self.MainMenu.node.active = true;
                         }
                     }
                 }
@@ -285,24 +337,25 @@ cc.Class({
             if (window.xmlhttp.readyState == 4) {
                 if (window.xmlhttp.status == 200) {
                     self.ConnectionManager.hide();
-                    if (window.xmlhttp.responseText === "Yes") {
-                        var played = cc.sys.localStorage.getItem("played")
-                        if (played === "true")//在玩一次
-                        {
-                            self.updateLastRank(gm);
-                        }
-                        else {
-                            self.AudioManager.playBgMenu();
-                            self.RankMenuNode.active = true;
-                        }
-
-                    }
-                    else //第一次玩
+                    // if (window.xmlhttp.responseText === "Yes") {
+                    var played = cc.sys.localStorage.getItem("played")
+                    if (played === "true")//在玩一次
                     {
-                        self.AudioManager.playBgMenu();
-                        self.MainMenuNode.active = true;
-                        //self.signUp(self);
+                        self.updateLastRank(gm);
                     }
+                    else {
+                        self.AudioManager.playBgMenu();
+                        self.MainMenu.node.active = true;
+                        // self.RankMenuNode.active = true;
+                    }
+
+                    // }
+                    // else //第一次玩
+                    // {
+                    //     self.AudioManager.playBgMenu();
+                    //     self.MainMenu.node.active = true;
+                    //     //self.signUp(self);
+                    // }
                 }
                 else {
                     self.ConnectionManager.error(self.checkUserId, self);
@@ -315,7 +368,7 @@ cc.Class({
     },
 
     showTut: function () {
-        this.MainMenuNode.active = false;
+        this.MainMenu.node.active = false;
         this.tutNode.active = true;
     },
 
@@ -335,7 +388,7 @@ cc.Class({
                     self.ConnectionManager.hide();
                     self.updateLastRank(self);
 
-                    //self.MainMenuNode.active = true;
+                    //self.MainMenu.node.active = true;
                 }
                 else {
                     self.ConnectionManager.error(self.signUp, self);
@@ -354,7 +407,7 @@ cc.Class({
     getURLParameter: function (name) {
         if (cc.sys.isNative)
             return "未登录";
-        else 
+        else
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     },
 
@@ -382,9 +435,10 @@ cc.Class({
     },
 
     startGame: function () {
+        GameState.current = GameState.play;
         this.GameUINode.active = true;
         this.RankMenuNode.active = false;
-        this.MainMenuNode.active = false;
+        this.MainMenu.node.active = false;
         this.doorSpeed = this.DataManager.doorSpeed;
         this.setPhrasePair();
         this.gameStarted = true;
@@ -400,6 +454,7 @@ cc.Class({
     },
 
     gameover: function () {
+        GameState.current = GameState.invalid;
         this.gameStarted = false;
         this.charNode.active = false;
         this.deadAnim.play("deadAnim");
@@ -479,6 +534,7 @@ cc.Class({
             this.leftSpriteNode.active = false;
             this.rightSpriteNode.active = false;
             this.setPhrasePair();
+            GameState.current = GameState.play;
         }.bind(this), this.DataManager.questionInterval * 1000);
     },
 
@@ -551,6 +607,7 @@ cc.Class({
             if (window.xmlhttp.readyState == 4) {
                 if (window.xmlhttp.status == 200) {
                     self.ConnectionManager.hide();
+                    GameState.current = GameState.gameover;
                     self.GameStats.node.active = true;
                     //var score = self.rightCount * self.DataManager.scorePerQuestion + self.comboScore;
                     var questionCount = self.rightCount + self.wrongCount;
