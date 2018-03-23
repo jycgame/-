@@ -25,6 +25,7 @@ cc.Class({
     // use this for initialization
     onLoad: function () {
         this.GameManager = this.GameManagerNode.getComponent("GameManager");
+        this.sprite = this.node.getComponent(cc.Sprite)
         this.enableClick();
     },
 
@@ -48,11 +49,14 @@ cc.Class({
 
     btnOnPressTV: function()
     {
-        var sprite = this.node.getComponent(cc.Sprite)
-        this.AudioManager.playSwitch();
+        // this.AudioManager.playChouti();
         var gm = this.GameManager;
         gm.answerSelected(this.btnIndex);
-        sprite.spriteFrame = this.pressedSprite;
+        this.sprite.spriteFrame = this.pressedSprite;
+    },
+
+    reset:function (event) {
+        this.sprite.spriteFrame = this.normalSprite;
     },
 
     btnOnCancel: function (event) {

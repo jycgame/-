@@ -57,6 +57,11 @@ cc.Class({
             url: cc.AudioClip,
         },
 
+        chouti: {
+            default: null,
+            url: cc.AudioClip,
+        },
+
     },
 
     alertId: null,
@@ -87,6 +92,10 @@ cc.Class({
 
     playButton: function() {
         cc.audioEngine.playEffect(this.button, false);
+    },
+
+    playChouti: function() {
+        cc.audioEngine.playEffect(this.chouti, false);
     },
 
     playRight: function () {

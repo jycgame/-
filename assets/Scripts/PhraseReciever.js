@@ -14,9 +14,11 @@ cc.Class({
     onLoad: function () {
         this.DataManager = this.DataManagerNode.getComponent("DataManager");
         this.usedPhraseIndexList = [];
+        // this.i = 0;
     },
 
     getPhrasePair: function () {
+
         var i = parseInt(Math.random() * this.DataManager.phraseList.length);
         while (this.usedPhraseIndexList.indexOf(i) != -1)
             i = parseInt(Math.random() * this.DataManager.phraseList.length);
@@ -26,8 +28,10 @@ cc.Class({
         //如果词语全部用过了就重新随机
         if (this.usedPhraseIndexList.length == this.DataManager.phraseList.length)
             this.usedPhraseIndexList = [];
-
         var phrasePair = [this.DataManager.phraseList[i][0],this.DataManager.phraseList[i][1], this.DataManager.phraseList[i][2]];
+
+        // var phrasePair = [this.DataManager.phraseList[this.i][0],this.DataManager.phraseList[this.i][1], this.DataManager.phraseList[this.i][2]];
+        // this.i ++;
         return phrasePair;
     },
 

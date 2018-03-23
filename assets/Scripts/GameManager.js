@@ -9,6 +9,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        BtnHighLight: cc.Node,
         QuitTipNode: cc.Node,
         DataManagerNode: {
             default: null,
@@ -212,11 +213,35 @@ cc.Class({
         this.startQuitCount = false;
 
         GameState.current = GameState.title;
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+
     },
 
     onDestroy: function () {
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    },
+
+    onKeyDown: function(event)
+    {
+        switch (GameState.current) {
+            case GameState.title:
+                this.MainMenu.processKeyDown(event);
+                break;
+            case GameState.rank:
+                this.RankMenu.processKeyDown(event);
+                break;
+            case GameState.help:
+                this.HelpMenu.processKeyDown(event);
+                break;
+            // case GameState.play:
+            //     this.processKeyDown(event);
+            //     break;
+            case GameState.gameover:
+                this.GameOverMenu.processKeyDown(event);
+                break;
+        }
     },
 
     onKeyUp: function (event) {
@@ -298,6 +323,7 @@ cc.Class({
                         else {
                             self.AudioManager.playBgMenu();
                             self.MainMenu.node.active = true;
+                            self.BtnHighLight.active = true;
                         }
                     }
                 }
@@ -354,6 +380,7 @@ cc.Class({
                     else {
                         self.AudioManager.playBgMenu();
                         self.MainMenu.node.active = true;
+                        self.BtnHighLight.active = true;
                         // self.RankMenuNode.active = true;
                     }
 
@@ -443,6 +470,7 @@ cc.Class({
     },
 
     startGame: function () {
+        this.BtnHighLight.active = false;
         GameState.current = GameState.play;
         this.GameUINode.active = true;
         this.RankMenuNode.active = false;
@@ -537,12 +565,15 @@ cc.Class({
 
 
         setTimeout(function () {
+            this.leftPhraseBtn.reset();
+            this.rightPhraseBtn.reset();
             this.leftPhraseBtn.enableClick();
             this.rightPhraseBtn.enableClick();
             this.leftSpriteNode.active = false;
             this.rightSpriteNode.active = false;
             this.setPhrasePair();
-            GameState.current = GameState.play;
+            if(this.gameStarted)
+                GameState.current = GameState.play;
         }.bind(this), this.DataManager.questionInterval * 1000);
     },
 

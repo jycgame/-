@@ -1,16 +1,15 @@
 {
   "appKey": "",
   "appSecret": "",
+  "encryptJs": true,
   "excludeScenes": [
     "2642e59e-10ac-454b-9d58-f57b36b7fcc5"
   ],
   "includeAnySDK": false,
   "includeSDKBox": false,
-  "includeSdk": [
-    "anysdk"
-  ],
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,
+  "jailbreakPlatform": false,
   "md5Cache": false,
   "mergeStartScene": false,
   "oauthLoginServer": "",
@@ -26,5 +25,11 @@
   "renderMode": "0",
   "startScene": "ef6c35cf-a4bc-4372-93b2-7d1e6901ecfc",
   "title": "Word",
-  "webOrientation": "portrait"
+  "webOrientation": "portrait",
+  "wechatgame": {
+    "appid": "wx6ac3f5090a6b99c5",
+    "orientation": "portrait"
+  },
+  "xxteaKey": "7716846d-736d-4a",
+  "zipCompressJs": true
 }
