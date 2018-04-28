@@ -49,7 +49,6 @@ cc.Class({
 
     btnOnPressTV: function()
     {
-        // this.AudioManager.playChouti();
         var gm = this.GameManager;
         gm.answerSelected(this.btnIndex);
         this.sprite.spriteFrame = this.pressedSprite;

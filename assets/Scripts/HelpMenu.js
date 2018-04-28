@@ -30,12 +30,8 @@ cc.Class({
                 this.sprite.spriteFrame = this.btn.normalSprite;
                 this.gameManager.BtnHighLight.active = true;
                 this.node.active = false;
-                if (this.gameManager.userName == "未登录") {
-                    this.gameManager.startGame();
-                }
-                else {
-                    this.gameManager.signUp();
-                }
+                this.gameManager.startGame();
+                break;
             default:
                 break;
         }

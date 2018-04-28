@@ -9,6 +9,10 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        randomImg: require("RandomImg"),
+        flowerLightningNode: cc.Node,
+        lightningAnim: cc.Animation,
+        GamePlayInfo: require("GamePlayInfo"),
         BtnHighLight: cc.Node,
         QuitTipNode: cc.Node,
         DataManagerNode: {
@@ -191,7 +195,7 @@ cc.Class({
         this.UserDataURL = "https://jcyapi.easybao.com/jcy-api/app/system/getUserMessage";
         //this.UserDataURL = "http://106.14.151.23/jcy-api/app/system/getUserMessage";
         //this.dbURL = "http://101.132.135.78/zcxs";
-        this.dbURL = "https://games.jcgroup.com.cn/zcxs"
+        this.dbURL = "http://games.jcgroup.com.cn/zcxs"
 
         this.DataManager = this.DataManagerNode.getComponent("DataManager");
         this.PhraseReviever = this.node.getComponent("PhraseReciever");
@@ -208,6 +212,7 @@ cc.Class({
 
         this.charAnimation.on('finished', this.charAttackFinished, this);
         this.deadAnim.on('finished', this.deadAnimFinished, this);
+        this.lightningAnim.on('finished', this.lightningAnimFinished, this);
         this.getUserId();
         this.getUserData(this);
         this.startQuitCount = false;
@@ -215,6 +220,7 @@ cc.Class({
         GameState.current = GameState.title;
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+        this.randomImg.init()
 
     },
 
@@ -223,8 +229,7 @@ cc.Class({
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
     },
 
-    onKeyDown: function(event)
-    {
+    onKeyDown: function (event) {
         switch (GameState.current) {
             case GameState.title:
                 this.MainMenu.processKeyDown(event);
@@ -306,7 +311,9 @@ cc.Class({
                 if (xmlhttp.status == 200) {
                     self.ConnectionManager.hide();
                     var obj = JSON.parse(xmlhttp.responseText);
+                    // console.log(obj.data)
                     if (obj.data) {
+                        self.AudioManager.playBgMenu();
                         self.userName = obj.data.name;
                         self.userNickName = obj.data.nickName;
                         self.checkUserId(self);
@@ -318,6 +325,7 @@ cc.Class({
                         var played = cc.sys.localStorage.getItem("played")
                         if (played === "true")//在玩一次d
                         {
+                            self.AudioManager.playBgMenu();
                             self.startGame();
                         }
                         else {
@@ -346,7 +354,7 @@ cc.Class({
             if (window.xmlhttp.readyState == 4) {
                 if (window.xmlhttp.status == 200) {
                     self.ConnectionManager.hide();
-                    self.startGame();
+                    // self.startGame();
                 }
                 else {
                     self.ConnectionManager.error(self.updateLastRank, self);
@@ -376,14 +384,13 @@ cc.Class({
                     if (played === "true")//在玩一次
                     {
                         self.updateLastRank(gm);
+                        self.startGame();
                     }
                     else {
-                        self.AudioManager.playBgMenu();
                         self.MainMenu.node.active = true;
                         self.BtnHighLight.active = true;
-                        // self.RankMenuNode.active = true;
+                        self.signUp(self);
                     }
-
                     // }
                     // else //第一次玩
                     // {
@@ -440,14 +447,33 @@ cc.Class({
     },
 
     getURLParameter: function (name) {
-        if (cc.sys.isNative)
-            return "未登录";
+        if (cc.sys.isNative) {
+            if (cc.sys.OS_ANDROID == cc.sys.os) {
+                // console.log("current platform is: cc.sys.OS_ANDROID");
+                // var id = jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "show", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", "title", "message");
+                var id =  jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "getId", "()Ljava/lang/String;");
+                console.log("get userid from java:  "+ id);
+                return id;
+            }
+            else
+                return "Anonymous";
+        }
         else
             return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
     },
 
     loadMainScene: function () {
         cc.director.loadScene("Main");
+    },
+
+    lightningAnimFinished: function () {
+        this.lightningAnim.node.parent.active = false;
+        this.charNode.active = true;
+        this.flowerLightningNode.active = true;
+        setTimeout(function () {
+            this.flowerLightningNode.active = false;
+        }.bind(this), 1000);
+
     },
 
     charAttackFinished: function () {
@@ -470,6 +496,7 @@ cc.Class({
     },
 
     startGame: function () {
+        this.randomImg.setImg()
         this.BtnHighLight.active = false;
         GameState.current = GameState.play;
         this.GameUINode.active = true;
@@ -533,13 +560,21 @@ cc.Class({
         this.rightPhraseBtn.disableClick();
         var answerSpriteFrame = null;
         if (seletionIndex == this.rightAnswerIndex) {//答对
-            this.leftImpulseAnim.node.active = true;
-            this.rightImpulseAnim.node.active = true;
-            this.leftImpulseAnim.node.scaleX = -this.rightDoorNode.x / this.doorMaxDist;
-            this.rightImpulseAnim.node.scaleX = this.rightDoorNode.x / this.doorMaxDist;
-            this.leftImpulseAnim.play("leftImpluse");
-            this.rightImpulseAnim.play("leftImpluse");
-            this.charAnimation.play("charAttack");
+            this.rightAnswerCount++;
+            if (this.rightAnswerCount % 5 == 0) {
+                this.lightningAnim.node.parent.active = true;
+                this.lightningAnim.play();
+                this.charNode.active = false;
+            }
+            else {
+                this.leftImpulseAnim.node.active = true;
+                this.rightImpulseAnim.node.active = true;
+                this.leftImpulseAnim.node.scaleX = -this.rightDoorNode.x / this.doorMaxDist;
+                this.rightImpulseAnim.node.scaleX = this.rightDoorNode.x / this.doorMaxDist;
+                this.leftImpulseAnim.play("leftImpluse");
+                this.rightImpulseAnim.play("leftImpluse");
+                this.charAnimation.play("charAttack");
+            }
             answerSpriteFrame = this.tickSprite;
             if (!this.comboBonus())
                 this.deductSpeed();
@@ -551,17 +586,33 @@ cc.Class({
                 this.highestCombo = this.rightAnswerCount;
             this.rightAnswerCount = 0;
             this.wrongCount++;
+            this.GamePlayInfo.playWrong();
             this.AudioManager.playWrong();
+            this.GamePlayInfo.turnOffAllLights();
         }
 
+        var comboUIPos = null;
         if (seletionIndex == 0) {
             this.leftSpriteNode.active = true;
             this.leftSprite.spriteFrame = answerSpriteFrame;
+            comboUIPos = cc.v2(-482, -300);
+            // if (seletionIndex == this.rightAnswerIndex)
+            //     this.GamePlayInfo.playFlyBall([cc.v2(-430, -324), cc.v2(-651, -80), cc.v2(-766, 10), cc.v2(-814, 167), cc.v2(-663, 257)]);
         }
         else {
             this.rightSpriteNode.active = true;
             this.rightSprite.spriteFrame = answerSpriteFrame;
+            comboUIPos = this.rightSpriteNode.parent.convertToWorldSpace(this.rightSpriteNode.position);
+            comboUIPos = cc.v2(382, -300);
+            // if (seletionIndex == this.rightAnswerIndex)
+            //     this.GamePlayInfo.playFlyBall([cc.v2(430, -285), cc.v2(269, 19), cc.v2(-42, -141), cc.v2(-372, 333)]);
         }
+
+        if (seletionIndex == this.rightAnswerIndex) {
+            this.GamePlayInfo.showComboUI(this.rightAnswerCount, comboUIPos);
+            this.GamePlayInfo.showScoreUI(this.curComboScore + this.DataManager.scorePerQuestion)
+        }
+        this.GamePlayInfo.updateQuestionNo(this.rightCount + this.wrongCount);
 
 
         setTimeout(function () {
@@ -572,7 +623,7 @@ cc.Class({
             this.leftSpriteNode.active = false;
             this.rightSpriteNode.active = false;
             this.setPhrasePair();
-            if(this.gameStarted)
+            if (this.gameStarted)
                 GameState.current = GameState.play;
         }.bind(this), this.DataManager.questionInterval * 1000);
     },
@@ -587,19 +638,37 @@ cc.Class({
     },
 
     comboBonus: function () {
-        this.rightAnswerCount++;
-        for (var i = 0; i < this.DataManager.comboBonusList.length; i++) {
-            var comboBonusRow = this.DataManager.comboBonusList[i];
-            if (this.rightAnswerCount == comboBonusRow[0]) {
-                this.doorSpeed = comboBonusRow[1];
-                setTimeout(function () {
-                    this.doorSpeed = this.DataManager.doorSpeed;
-                }.bind(this), comboBonusRow[2] * 1000);
-                this.AudioManager.playCombo();
-                this.comboScore += parseFloat(comboBonusRow[3]);
-                return true;
-            }
+        this.curComboScore = (this.rightAnswerCount - 1) * 2
+        this.comboScore += this.curComboScore;
+
+        if (this.rightAnswerCount != 0 && this.rightAnswerCount % 5 == 0) {
+            // setTimeout(function () {
+
+            // }.bind(this), 300);
+            this.doorSpeed = -455;
+            setTimeout(function () {
+                this.doorSpeed = this.DataManager.doorSpeed;
+            }.bind(this), 200);
+            this.AudioManager.playCombo();
+            this.GamePlayInfo.playCombo();
         }
+        else
+            this.GamePlayInfo.playRight();
+
+
+
+        // for (var i = 0; i < this.DataManager.comboBonusList.length; i++) {
+        //     var comboBonusRow = this.DataManager.comboBonusList[i];
+        //     if (this.rightAnswerCount == comboBonusRow[0]) {
+        //         this.doorSpeed = comboBonusRow[1];
+        //         setTimeout(function () {
+        //             this.doorSpeed = this.DataManager.doorSpeed;
+        //         }.bind(this), comboBonusRow[2] * 1000);
+        //         this.AudioManager.playCombo();
+        //         this.comboScore += parseFloat(comboBonusRow[3]);
+        //         return true;
+        //     }
+        // }
         this.AudioManager.playRight();
         return false;
     },
@@ -607,6 +676,7 @@ cc.Class({
     //called every frame, uncomment this function to activate update callback
     update: function (dt) {
         this.timeCost += dt;
+        this.GamePlayInfo.updateTime(this.timeCost);
         if (this.startQuitCount) {
             this.quitCount += dt;
             if (this.quitCount > 3) {

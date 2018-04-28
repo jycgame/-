@@ -63,9 +63,10 @@ cc.Class({
                     var lastRank = item[2];
 
                     var rankListComponent = self.rankList.getComponent("RankList");
-                    var userName = item[3];
-                    if (!userName || userName === "")
-                        userName = item[4];
+                    // var userName = item[3];
+                    // if (!userName || userName === "")
+                    //     userName = item[4];
+                    var userName = item[4];
 
                     if (gm.GameManager.userName ==="未登录")
                         rankListComponent.setItem(5, 0, 0, "未登录", 0);
@@ -103,9 +104,10 @@ cc.Class({
                     for (var i = 0; i < responses.length; i++) {
                         var item = responses[i].split(",");
 
-                        var userName = item[4];
-                        if (!userName || userName === "")
-                            userName = item[5];
+                        // var userName = item[4];
+                        // if (!userName || userName === "")
+                        //     userName = item[5];
+                        var userName = item[5];
                         var responseHighScore = item[1];
                         var lastRank = item[3];
 

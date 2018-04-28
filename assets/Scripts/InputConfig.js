@@ -21,7 +21,6 @@ var InputConfig = {
     activeDevice: function() {
         return this.activeDevice;
     }
-
 };
 
 module.exports = InputConfig;

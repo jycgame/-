@@ -17,20 +17,11 @@ cc.Class({
             url: cc.AudioClip,
         },
 
-        right1: {
-            default: null,
-            url: cc.AudioClip,
-        },
+        right1: [cc.AudioClip],
 
-        right2: {
-            default: null,
-            url: cc.AudioClip,
-        },
+        right2: [cc.AudioClip],
 
-        wrong: {
-            default: null,
-            url: cc.AudioClip,
-        },
+        wrong: cc.AudioClip,
 
         switch: {
             default: null,
@@ -56,12 +47,6 @@ cc.Class({
             default: null,
             url: cc.AudioClip,
         },
-
-        chouti: {
-            default: null,
-            url: cc.AudioClip,
-        },
-
     },
 
     alertId: null,
@@ -75,13 +60,16 @@ cc.Class({
     },
 
     playBg: function () {
-        if (this.bgId!=null)
+        if (this.bgId != null)
             cc.audioEngine.stop(this.bgId);
-        this.bgId = cc.audioEngine.playEffect(this.bgHead, false);
-        var time = cc.audioEngine.getDuration(this.bgId);
-        this.bgTimeout = setTimeout(function () {
-            this.bgId = cc.audioEngine.playEffect(this.bgBody, true);
-        }.bind(this), time * 1000);
+        this.bgId = cc.audioEngine.playEffect(this.bgBody, true)
+        // if (this.bgId != null)
+        //     cc.audioEngine.stop(this.bgId);
+        // this.bgId = cc.audioEngine.playEffect(this.bgHead, false);
+        // var time = cc.audioEngine.getDuration(this.bgId);
+        // this.bgTimeout = setTimeout(function () {
+        //     this.bgId = cc.audioEngine.playEffect(this.bgBody, true);
+        // }.bind(this), time * 1000);
     },
 
     stopBg: function () {
@@ -90,20 +78,30 @@ cc.Class({
         cc.audioEngine.stop(this.bgId);
     },
 
-    playButton: function() {
+    playButton: function () {
         cc.audioEngine.playEffect(this.button, false);
-    },
-
-    playChouti: function() {
-        cc.audioEngine.playEffect(this.chouti, false);
     },
 
     playRight: function () {
         var n = Math.random();
-        if (n <= 0.5)
-            cc.audioEngine.playEffect(this.right1, false);
-        else
-            cc.audioEngine.playEffect(this.right2, false);
+        if (n <= 0.5) {
+            n = Math.random();
+            if (n <= 0.33)
+                cc.audioEngine.playEffect(this.right1[0], false);
+            else if (n < 0.67)
+                cc.audioEngine.playEffect(this.right1[1], false);
+            else
+                cc.audioEngine.playEffect(this.right1[2], false);
+        }
+        else {
+            n = Math.random();
+            if (n <= 0.33)
+                cc.audioEngine.playEffect(this.right2[0], false);
+            else if (n < 0.67)
+                cc.audioEngine.playEffect(this.right2[1], false);
+            else
+                cc.audioEngine.playEffect(this.right2[2], false);
+        }
     },
 
     playWrong: function () {
@@ -119,7 +117,7 @@ cc.Class({
     },
 
     playAlert: function () {
-        this.alertId = cc.audioEngine.play(this.alert, true,0.5);
+        this.alertId = cc.audioEngine.play(this.alert, true);
     },
 
     stopAlert: function () {
@@ -132,8 +130,7 @@ cc.Class({
         cc.audioEngine.playEffect(this.gameover, false);
     },
 
-    muteAll: function ()
-    {
+    muteAll: function () {
         if (this.bgId != null)
             cc.audioEngine.setVolume(this.bgId, 0);
         if (this.alertId != null)

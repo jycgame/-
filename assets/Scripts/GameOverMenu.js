@@ -8,16 +8,30 @@ cc.Class({
         btns: [cc.Button]
     },
 
+    // update: function (dt) {
+    //     if (this.countTime) {
+    //         this.timeCount += dt;
+    //         if (this.timeCount >= 2) {
+    //             this.gameManager.loadMainScene();
+    //             this.gameManager.setPlayedTrue();
+    //             this.countTime = false;
+    //         }
+    //     }
+    // },
+
     onLoad: function () {
         this.gameManager = cc.find("GameManager").getComponent("GameManager");
         this.audioManager = cc.find("AudioManager").getComponent("AudioManager");
         this.curBtnIndex = 0;
-        this.btnCount = 2;
+        this.btnCount = this.btns.length;
         this.sprites = [];
         this.btns.forEach(btn => {
             this.sprites.push(btn.node.getComponent(cc.Sprite));
         });
         this.node.active = false;
+
+        // this.timeCount = 0;
+        // this.countTime = true;
     },
 
     onEnable: function () {
@@ -45,11 +59,11 @@ cc.Class({
             case InputConfig.dpadCenter:
                 this.sprites[this.curBtnIndex].spriteFrame = this.btns[this.curBtnIndex].normalSprite;
                 this.gameManager.BtnHighLight.active = true;
-                if (this.curBtnIndex == 1) {//再玩一次
-                    this.gameManager.loadMainScene();
+                if (this.curBtnIndex == 0) {//再玩一次
                     this.gameManager.setPlayedTrue();
+                    this.gameManager.loadMainScene();
                 }
-                else if (this.curBtnIndex == 0) {//排行榜
+                else if (this.curBtnIndex == 1) {//排行榜
                     GameState.current = GameState.rank;
                     this.gameManager.RankMenu.backState = GameState.gameover;
                     this.gameManager.RankMenu.backUI = this;
