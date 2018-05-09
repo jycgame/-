@@ -17792,7 +17792,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 2,
+      "x": -6.5,
       "y": -3
     },
     "_skewX": 0,
@@ -17837,7 +17837,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 27,
+    "_left": 18.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -17930,7 +17930,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 5,
+      "x": -3.5,
       "y": 0
     },
     "_skewX": 0,
@@ -17975,7 +17975,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 30,
+    "_left": 21.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -19955,7 +19955,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 2,
+      "x": -6.5,
       "y": -3
     },
     "_skewX": 0,
@@ -20000,7 +20000,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 27,
+    "_left": 18.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -20093,7 +20093,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 5,
+      "x": -3.5,
       "y": 0
     },
     "_skewX": 0,
@@ -20138,7 +20138,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 30,
+    "_left": 21.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -22118,7 +22118,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 2,
+      "x": -6.5,
       "y": -3
     },
     "_skewX": 0,
@@ -22163,7 +22163,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 27,
+    "_left": 18.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -22256,7 +22256,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 5,
+      "x": -3.5,
       "y": 0
     },
     "_skewX": 0,
@@ -22301,7 +22301,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 30,
+    "_left": 21.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -24158,7 +24158,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 2,
+      "x": -6.5,
       "y": -3
     },
     "_skewX": 0,
@@ -24203,7 +24203,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 27,
+    "_left": 18.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -24296,7 +24296,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 5,
+      "x": -3.5,
       "y": 0
     },
     "_skewX": 0,
@@ -24341,7 +24341,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 30,
+    "_left": 21.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -26198,7 +26198,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 2,
+      "x": -6.5,
       "y": -3
     },
     "_skewX": 0,
@@ -26243,7 +26243,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 27,
+    "_left": 18.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -26336,7 +26336,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 5,
+      "x": -3.5,
       "y": 0
     },
     "_skewX": 0,
@@ -26381,7 +26381,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 30,
+    "_left": 21.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -28471,7 +28471,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -4,
+      "x": -12.5,
       "y": -3
     },
     "_skewX": 0,
@@ -28516,7 +28516,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 21,
+    "_left": 12.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -28609,7 +28609,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -1,
+      "x": -9.5,
       "y": 0
     },
     "_skewX": 0,
@@ -28654,7 +28654,7 @@
     "isAlignOnce": false,
     "_target": null,
     "_alignFlags": 10,
-    "_left": 24,
+    "_left": 15.5,
     "_right": 0,
     "_top": 32,
     "_bottom": 32,
@@ -30292,7 +30292,7 @@
     },
     "_children": [],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 925

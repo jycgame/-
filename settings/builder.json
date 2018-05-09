@@ -5,6 +5,7 @@
   "excludeScenes": [
     "2642e59e-10ac-454b-9d58-f57b36b7fcc5"
   ],
+  "fb-instant-games": {},
   "includeAnySDK": false,
   "includeSDKBox": false,
   "inlineSpriteFrames": true,
@@ -20,10 +21,13 @@
     "portrait": false,
     "upsideDown": false
   },
-  "packageName": "org.cocos2d.Word",
+  "packageName": "com.jycgame.zcxs",
   "privateKey": "",
+  "qqplay": {
+    "orientation": "portrait"
+  },
   "renderMode": "0",
-  "startScene": "ef6c35cf-a4bc-4372-93b2-7d1e6901ecfc",
+  "startScene": "8c21978e-821c-4d77-a088-c8f9cbfee668",
   "title": "Word",
   "webOrientation": "portrait",
   "wechatgame": {
@@ -31,9 +35,5 @@
     "orientation": "portrait"
   },
   "xxteaKey": "7716846d-736d-4a",
-  "zipCompressJs": true,
-  "qqplay": {
-    "orientation": "portrait"
-  },
-  "fb-instant-games": {}
+  "zipCompressJs": true
 }

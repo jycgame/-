@@ -188,11 +188,12 @@ cc.Class({
     // use this for initialization
     onLoad: function () {
 
+
         this.ConnectionManager.init();
         this.leftPhrase.init();
         this.rightPhrase.init();
 
-        this.UserDataURL = "https://jcyapi.easybao.com/jcy-api/app/system/getUserMessage";
+        this.UserDataURL = "http://jcyapi.easybao.com/jcy-api/app/system/getUserMessage";
         //this.UserDataURL = "http://106.14.151.23/jcy-api/app/system/getUserMessage";
         //this.dbURL = "http://101.132.135.78/zcxs";
         this.dbURL = "http://games.jcgroup.com.cn/zcxs"
@@ -250,6 +251,13 @@ cc.Class({
     },
 
     onKeyUp: function (event) {
+      //chrome 打开没有声音，加以下三行
+    //   window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    //   var context = new AudioContext();
+    //   context.resume() 
+    //   console.log(11111111111)
+     
+
         if (event.keyCode == InputConfig.back && this.startQuitCount) {
             console.log("Quit Game!");
             cc.game.end();
@@ -451,8 +459,8 @@ cc.Class({
             if (cc.sys.OS_ANDROID == cc.sys.os) {
                 // console.log("current platform is: cc.sys.OS_ANDROID");
                 // var id = jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "show", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", "title", "message");
-                var id =  jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "getId", "()Ljava/lang/String;");
-                console.log("get userid from java:  "+ id);
+                var id = jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "getId", "()Ljava/lang/String;");
+                console.log("get userid from java:  " + id);
                 return id;
             }
             else
